@@ -149,3 +149,42 @@ body {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* AUTH + DASHBOARD */
+.auth { max-width: 400px; margin: 40px auto 0; }
+.auth__title { font-family: var(--font-display), sans-serif; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.auth__sub { color: var(--muted); margin-bottom: 26px; }
+.auth__switch { margin-top: 18px; font-size: 14px; color: var(--muted); }
+.linkbtn { background: none; border: none; color: var(--brand-deep); font-weight: 600; cursor: pointer; font-size: 14px; padding: 0; }
+.linkbtn:hover { text-decoration: underline; }
+
+.dash { max-width: 640px; margin: 30px auto 0; }
+.dash__title { font-family: var(--font-display), sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.dash__sub { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+.dash__form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 28px; }
+.dash__form input { font-family: inherit; font-size: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.dash__form input:focus { outline: 2px solid var(--brand); border-color: transparent; }
+.dash__empty { color: var(--muted); padding: 30px 0; text-align: center; border: 1px dashed var(--line); border-radius: 12px; }
+.tracklist { display: flex; flex-direction: column; gap: 10px; }
+.track { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.track__kw { font-weight: 600; }
+.track__listing { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.track__del { background: none; border: none; color: var(--drop); font-size: 13px; font-weight: 600; cursor: pointer; }
+.track__del:hover { text-decoration: underline; }
+
+@media (max-width: 560px) {
+  .dash__form { grid-template-columns: 1fr; }
+}
+
+.track__main { flex: 1; }
+.track__actions { display: flex; align-items: center; gap: 14px; }
+.track__rank { font-size: 13px; margin-top: 6px; color: var(--rise); font-weight: 600; }
+.track__rank b { font-family: var(--font-mono), monospace; }
+.track__rank--miss { color: var(--muted); font-weight: 500; }
+.track__check {
+  font-family: var(--font-display), sans-serif; font-weight: 700; font-size: 13px;
+  color: var(--ink); background: var(--brand); border: none;
+  border-radius: 8px; padding: 8px 14px; cursor: pointer;
+}
+.track__check:hover { background: var(--brand-deep); color: #fff; }
+.track__check:disabled { opacity: 0.6; cursor: default; }
