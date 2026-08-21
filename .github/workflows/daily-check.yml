@@ -1,0 +1,17 @@
+name: Daily Rank Check
+
+on:
+  schedule:
+    # Runs every day at 06:00 UTC (08:00 Botswana time).
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger rank check
+        run: |
+          curl --fail --silent --show-error \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "https://getperch.netlify.app/api/cron/check-ranks"
