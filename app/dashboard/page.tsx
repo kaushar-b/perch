@@ -220,7 +220,7 @@ export default function Dashboard() {
                                 width={40}
                               />
                               <Tooltip
-                                formatter={(v: number | null) =>
+                                formatter={(v) =>
                                   v == null ? ["Not in top 100", "Rank"] : [`#${v}`, "Rank"]
                                 }
                               />
