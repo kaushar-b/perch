@@ -78,7 +78,7 @@ export default function Home() {
           <span className="brand__tag">Your spot in eBay search</span>
         </div>
         <div className="nav__links">
-          <a className="nav__login" href="/login">Log in</a>
+          <a className="nav__login" href="/login?mode=login">Log in</a>
           <a className="nav__cta" href="/login">Sign up free</a>
         </div>
       </nav>
