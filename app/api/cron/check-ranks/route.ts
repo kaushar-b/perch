@@ -24,7 +24,9 @@ function findPosition(items: EbayItem[], listing: string): { position: number | 
 
 export async function GET(req: NextRequest) {
   // Security: only allow calls that carry the secret.
-  const secret = req.nextUrl.searchParams.get("secret");
+  const secret =
+    req.nextUrl.searchParams.get("secret") ||
+    req.headers.get("x-cron-secret");
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
