@@ -188,3 +188,35 @@ body {
 }
 .track__check:hover { background: var(--brand-deep); color: #fff; }
 .track__check:disabled { opacity: 0.6; cursor: default; }
+
+.track--col { flex-direction: column; align-items: stretch; }
+.track__row { display: flex; align-items: center; justify-content: space-between; }
+.chartbox { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.chartbox__msg { color: var(--muted); font-size: 14px; padding: 12px 0; }
+.chartbox__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.chartbox__label { display: block; font-size: 12px; color: var(--muted); }
+.chartbox__big { font-family: var(--font-display), sans-serif; font-size: 26px; font-weight: 800; color: var(--ink); }
+.chartbox__trend { font-family: var(--font-mono), monospace; font-size: 13px; font-weight: 700; }
+.chartbox__trend.up { color: var(--rise); }
+.chartbox__trend.down { color: var(--drop); }
+.chartbox__note { font-size: 11.5px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+.nav__links { display: flex; align-items: center; gap: 18px; }
+.nav__login { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.nav__login:hover { color: var(--brand-deep); }
+
+.signup-cta {
+  text-align: center; padding: 40px 24px; margin: 20px 0 40px;
+  background: var(--ink); border-radius: var(--radius);
+}
+.signup-cta__text {
+  color: #eef2ee; font-size: 18px; font-weight: 600;
+  font-family: var(--font-display), sans-serif; margin-bottom: 18px;
+  max-width: 40ch; margin-left: auto; margin-right: auto;
+}
+.signup-cta .btn { display: inline-block; text-decoration: none; }
+
+@media (max-width: 560px) {
+  .brand__tag { display: none; }
+  .nav__links { gap: 12px; }
+}

@@ -77,9 +77,10 @@ export default function Home() {
           </span>
           <span className="brand__tag">Your spot in eBay search</span>
         </div>
-        <a className="nav__cta" href="#check">
-          Check a listing
-        </a>
+        <div className="nav__links">
+          <a className="nav__login" href="/login">Log in</a>
+          <a className="nav__cta" href="/login">Sign up free</a>
+        </div>
       </nav>
 
       <section className="hero" id="check">
@@ -189,6 +190,13 @@ export default function Home() {
             )}
           </div>
         </div>
+      </section>
+
+      <section className="signup-cta">
+        <p className="signup-cta__text">
+          Want Perch to track this automatically and show your rank trend over time?
+        </p>
+        <a className="btn" href="/login">Create a free account</a>
       </section>
 
       <section className="strip">

@@ -8,22 +8,27 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDocs,
   query,
   where,
+  orderBy,
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useAuth } from "../AuthProvider";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
 type Tracked = { id: string; keyword: string; listing: string };
-type CheckState = {
-  loading: boolean;
-  position: number | null;
-  total: number | null;
-  found: boolean | null;
-  error: string;
-};
+type HistPoint = { date: string; position: number | null };
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -31,7 +36,9 @@ export default function Dashboard() {
   const [items, setItems] = useState<Tracked[]>([]);
   const [keyword, setKeyword] = useState("");
   const [listing, setListing] = useState("");
-  const [checks, setChecks] = useState<Record<string, CheckState>>({});
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [history, setHistory] = useState<Record<string, HistPoint[]>>({});
+  const [histLoading, setHistLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -67,47 +74,31 @@ export default function Dashboard() {
 
   async function remove(id: string) {
     await deleteDoc(doc(db, "tracked", id));
-    setChecks((c) => {
-      const next = { ...c };
-      delete next[id];
-      return next;
-    });
+    if (openId === id) setOpenId(null);
   }
 
-  async function checkNow(t: Tracked) {
-    setChecks((c) => ({
-      ...c,
-      [t.id]: { loading: true, position: null, total: null, found: null, error: "" },
-    }));
-    try {
-      const res = await fetch("/api/rank", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword: t.keyword, item: t.listing }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setChecks((c) => ({
-          ...c,
-          [t.id]: { loading: false, position: null, total: null, found: null, error: data.error || "Check failed" },
+  async function toggleChart(id: string) {
+    if (openId === id) {
+      setOpenId(null);
+      return;
+    }
+    setOpenId(id);
+    if (!history[id]) {
+      setHistLoading(true);
+      try {
+        const snap = await getDocs(
+          query(collection(db, "tracked", id, "history"), orderBy("date", "asc"))
+        );
+        const points: HistPoint[] = snap.docs.map((d) => ({
+          date: d.data().date,
+          position: d.data().position ?? null,
         }));
-      } else {
-        setChecks((c) => ({
-          ...c,
-          [t.id]: {
-            loading: false,
-            position: data.position,
-            total: data.total,
-            found: data.found,
-            error: "",
-          },
-        }));
+        setHistory((h) => ({ ...h, [id]: points }));
+      } catch {
+        setHistory((h) => ({ ...h, [id]: [] }));
+      } finally {
+        setHistLoading(false);
       }
-    } catch {
-      setChecks((c) => ({
-        ...c,
-        [t.id]: { loading: false, position: null, total: null, found: null, error: "Could not check" },
-      }));
     }
   }
 
@@ -155,38 +146,101 @@ export default function Dashboard() {
         ) : (
           <div className="tracklist">
             {items.map((t) => {
-              const c = checks[t.id];
+              const isOpen = openId === t.id;
+              const points = history[t.id] ?? [];
+              // Turn history into chart data. Rank is "inverted" (lower = better),
+              // so we plot the raw position but flip the Y axis so up = better.
+              const chartData = points.map((p) => ({
+                date: p.date.slice(5), // MM-DD
+                rank: p.position, // null if not in top 100
+              }));
+              const ranked = points.filter((p) => p.position != null);
+              const latest = ranked.length ? ranked[ranked.length - 1].position : null;
+              const first = ranked.length ? ranked[0].position : null;
+              const trend =
+                latest != null && first != null
+                  ? first - latest // positive = improved (moved toward #1)
+                  : null;
+
               return (
-                <div key={t.id} className="track">
-                  <div className="track__main">
-                    <div className="track__kw">{t.keyword}</div>
-                    <div className="track__listing">{t.listing}</div>
-                    {c && !c.loading && c.found && (
-                      <div className="track__rank">
-                        Ranks <b>#{c.position}</b> of {c.total?.toLocaleString()}
-                      </div>
-                    )}
-                    {c && !c.loading && c.found === false && (
-                      <div className="track__rank track__rank--miss">
-                        Not in the top 100 of {c.total?.toLocaleString()}
-                      </div>
-                    )}
-                    {c && c.error && (
-                      <div className="track__rank track__rank--miss">{c.error}</div>
-                    )}
+                <div key={t.id} className="track track--col">
+                  <div className="track__row">
+                    <div className="track__main">
+                      <div className="track__kw">{t.keyword}</div>
+                      <div className="track__listing">{t.listing}</div>
+                    </div>
+                    <div className="track__actions">
+                      <button className="track__check" onClick={() => toggleChart(t.id)}>
+                        {isOpen ? "Hide chart" : "Show chart"}
+                      </button>
+                      <button className="track__del" onClick={() => remove(t.id)}>
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                  <div className="track__actions">
-                    <button
-                      className="track__check"
-                      onClick={() => checkNow(t)}
-                      disabled={c?.loading}
-                    >
-                      {c?.loading ? "Checking…" : "Check now"}
-                    </button>
-                    <button className="track__del" onClick={() => remove(t.id)}>
-                      Remove
-                    </button>
-                  </div>
+
+                  {isOpen && (
+                    <div className="chartbox">
+                      {histLoading && !history[t.id] ? (
+                        <p className="chartbox__msg">Loading history…</p>
+                      ) : chartData.length === 0 ? (
+                        <p className="chartbox__msg">
+                          No history yet. Ranks are recorded once a day — check back
+                          tomorrow to see the line start.
+                        </p>
+                      ) : (
+                        <>
+                          <div className="chartbox__head">
+                            <div>
+                              <span className="chartbox__label">Current rank</span>
+                              <span className="chartbox__big">
+                                {latest != null ? `#${latest}` : "—"}
+                              </span>
+                            </div>
+                            {trend != null && trend !== 0 && (
+                              <span
+                                className={`chartbox__trend ${
+                                  trend > 0 ? "up" : "down"
+                                }`}
+                              >
+                                {trend > 0
+                                  ? `▲ up ${trend} since ${chartData[0].date}`
+                                  : `▼ down ${Math.abs(trend)} since ${chartData[0].date}`}
+                              </span>
+                            )}
+                          </div>
+                          <ResponsiveContainer width="100%" height={180}>
+                            <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e3e6df" />
+                              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#5e6b64" }} />
+                              <YAxis
+                                reversed
+                                allowDecimals={false}
+                                tick={{ fontSize: 11, fill: "#5e6b64" }}
+                                width={40}
+                              />
+                              <Tooltip
+                                formatter={(v: number | null) =>
+                                  v == null ? ["Not in top 100", "Rank"] : [`#${v}`, "Rank"]
+                                }
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="rank"
+                                stroke="#2f6b4f"
+                                strokeWidth={2.5}
+                                dot={{ r: 3, fill: "#2f6b4f" }}
+                                connectNulls
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                          <p className="chartbox__note">
+                            Higher on the chart = better rank (closer to #1).
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
