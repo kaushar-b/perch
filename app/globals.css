@@ -220,3 +220,23 @@ body {
   .brand__tag { display: none; }
   .nav__links { gap: 12px; }
 }
+
+.pricing { max-width: 980px; margin: 30px auto 0; text-align: center; }
+.pricing__title { font-family: var(--font-display), sans-serif; font-size: clamp(28px,4vw,42px); font-weight: 800; letter-spacing: -0.02em; }
+.pricing__sub { color: var(--muted); font-size: 17px; margin: 12px 0 40px; }
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left; }
+.tier { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; position: relative; }
+.tier--featured { border-color: var(--brand); border-width: 2px; box-shadow: 0 12px 30px rgba(47,107,79,0.1); }
+.tier__badge { position: absolute; top: -12px; left: 24px; background: var(--brand); color: var(--ink); font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; font-family: var(--font-display), sans-serif; }
+.tier__name { font-family: var(--font-display), sans-serif; font-size: 20px; font-weight: 700; }
+.tier__price { font-family: var(--font-display), sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; margin: 8px 0 4px; }
+.tier__per { font-size: 16px; color: var(--muted); font-weight: 400; }
+.tier__tagline { color: var(--muted); font-size: 14px; margin-bottom: 20px; min-height: 40px; }
+.tier__features { list-style: none; margin: 0 0 24px; padding: 0; flex: 1; }
+.tier__features li { font-size: 14px; padding: 8px 0 8px 26px; position: relative; border-top: 1px solid var(--line); }
+.tier__features li:before { content: "✓"; position: absolute; left: 0; color: var(--brand-deep); font-weight: 700; }
+.btn--outline { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn--outline:hover { background: var(--paper); color: var(--ink); }
+.btn { display: inline-block; text-align: center; text-decoration: none; }
+.pricing__note { color: var(--muted); font-size: 13px; margin-top: 28px; }
+@media (max-width: 760px) { .tiers { grid-template-columns: 1fr; } }
