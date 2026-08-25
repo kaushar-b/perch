@@ -15,7 +15,7 @@ export default function PricingPage() {
       tagline: "For active sellers growing their store.",
       features: ["25 tracked keywords", "Daily rank tracking", "Full history chart", "Email drop alerts", "Email support"],
       cta: "Choose Seller",
-      href: "/login",
+      href: "https://vermelhoai.lemonsqueezy.com/checkout/buy/1aca1e6c-20d2-4807-bf07-1c7acac8cf7b",
       featured: true,
     },
     {
@@ -24,7 +24,7 @@ export default function PricingPage() {
       tagline: "For power sellers with big catalogs.",
       features: ["Unlimited keywords", "Daily rank tracking", "Full history chart", "Email drop alerts", "Priority support"],
       cta: "Choose Pro",
-      href: "/login",
+      href: "https://vermelhoai.lemonsqueezy.com/checkout/buy/2a21b039-46cc-40e5-8995-91af62c9d33d",
       featured: false,
     },
   ];

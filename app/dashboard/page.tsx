@@ -8,6 +8,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
+  setDoc,
   getDocs,
   query,
   where,
@@ -29,6 +31,7 @@ import {
 
 type Tracked = { id: string; keyword: string; listing: string };
 type HistPoint = { date: string; position: number | null };
+type Plan = "free" | "seller" | "pro";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -39,6 +42,11 @@ export default function Dashboard() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [history, setHistory] = useState<Record<string, HistPoint[]>>({});
   const [histLoading, setHistLoading] = useState(false);
+  const [plan, setPlan] = useState<Plan>("free");
+
+  const LIMITS: Record<Plan, number> = { free: 3, seller: 25, pro: Infinity };
+  const limit = LIMITS[plan];
+  const atLimit = items.length >= limit;
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -59,9 +67,31 @@ export default function Dashboard() {
     return () => unsub();
   }, [user]);
 
+  // Load (or create) the user's plan record. Live-updates when the webhook
+  // changes it, so a payment upgrades the dashboard automatically.
+  useEffect(() => {
+    if (!user) return;
+    const ref = doc(db, "users", user.uid);
+    // Ensure the record exists (email is how the webhook matches payments).
+    getDoc(ref).then((snap) => {
+      if (!snap.exists()) {
+        setDoc(ref, { email: (user.email || "").toLowerCase(), plan: "free" }, { merge: true });
+      } else if (!snap.data().email) {
+        setDoc(ref, { email: (user.email || "").toLowerCase() }, { merge: true });
+      }
+    });
+    // Listen for plan changes in real time.
+    const unsub = onSnapshot(ref, (snap) => {
+      const p = snap.data()?.plan as Plan | undefined;
+      if (p) setPlan(p);
+    });
+    return () => unsub();
+  }, [user]);
+
   async function addTracked(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !keyword.trim() || !listing.trim()) return;
+    if (atLimit) return;
     await addDoc(collection(db, "tracked"), {
       uid: user.uid,
       keyword: keyword.trim(),
@@ -110,6 +140,8 @@ export default function Dashboard() {
     );
   }
 
+  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+
   return (
     <div className="wrap">
       <nav className="nav">
@@ -123,7 +155,7 @@ export default function Dashboard() {
 
       <div className="dash">
         <h1 className="dash__title">Your tracked keywords</h1>
-        <p className="dash__sub">{user.email}</p>
+        <p className="dash__sub">{user.email} · {planLabel} plan</p>
 
         <form className="dash__form" onSubmit={addTracked}>
           <input
@@ -136,8 +168,20 @@ export default function Dashboard() {
             value={listing}
             onChange={(e) => setListing(e.target.value)}
           />
-          <button className="btn" type="submit">Track it</button>
+          <button className="btn" type="submit" disabled={atLimit}>Track it</button>
         </form>
+
+        <p className="dash__usage">
+          {limit === Infinity
+            ? `${items.length} keywords tracked · Pro (unlimited)`
+            : `${items.length} of ${limit} keywords used · ${planLabel} plan`}
+          {atLimit && limit !== Infinity && (
+            <>
+              {" — "}
+              <a href="/pricing" className="dash__upgrade">Upgrade for more</a>
+            </>
+          )}
+        </p>
 
         {items.length === 0 ? (
           <p className="dash__empty">
@@ -148,19 +192,15 @@ export default function Dashboard() {
             {items.map((t) => {
               const isOpen = openId === t.id;
               const points = history[t.id] ?? [];
-              // Turn history into chart data. Rank is "inverted" (lower = better),
-              // so we plot the raw position but flip the Y axis so up = better.
               const chartData = points.map((p) => ({
-                date: p.date.slice(5), // MM-DD
-                rank: p.position, // null if not in top 100
+                date: p.date.slice(5),
+                rank: p.position,
               }));
               const ranked = points.filter((p) => p.position != null);
               const latest = ranked.length ? ranked[ranked.length - 1].position : null;
               const first = ranked.length ? ranked[0].position : null;
               const trend =
-                latest != null && first != null
-                  ? first - latest // positive = improved (moved toward #1)
-                  : null;
+                latest != null && first != null ? first - latest : null;
 
               return (
                 <div key={t.id} className="track track--col">

@@ -240,3 +240,7 @@ body {
 .btn { display: inline-block; text-align: center; text-decoration: none; }
 .pricing__note { color: var(--muted); font-size: 13px; margin-top: 28px; }
 @media (max-width: 760px) { .tiers { grid-template-columns: 1fr; } }
+
+.dash__usage { font-size: 13px; color: var(--muted); margin: -14px 0 24px; }
+.dash__upgrade { color: var(--brand-deep); font-weight: 600; text-decoration: none; }
+.dash__upgrade:hover { text-decoration: underline; }
