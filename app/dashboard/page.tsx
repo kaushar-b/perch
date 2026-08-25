@@ -43,6 +43,7 @@ export default function Dashboard() {
   const [history, setHistory] = useState<Record<string, HistPoint[]>>({});
   const [histLoading, setHistLoading] = useState(false);
   const [plan, setPlan] = useState<Plan>("free");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const LIMITS: Record<Plan, number> = { free: 3, seller: 25, pro: Infinity };
   const limit = LIMITS[plan];
@@ -102,9 +103,10 @@ export default function Dashboard() {
     setListing("");
   }
 
-  async function remove(id: string) {
+    async function remove(id: string) {
     await deleteDoc(doc(db, "tracked", id));
     if (openId === id) setOpenId(null);
+    setConfirmId(null);
   }
 
   async function toggleChart(id: string) {
@@ -213,9 +215,21 @@ export default function Dashboard() {
                       <button className="track__check" onClick={() => toggleChart(t.id)}>
                         {isOpen ? "Hide chart" : "Show chart"}
                       </button>
-                      <button className="track__del" onClick={() => remove(t.id)}>
-                        Remove
-                      </button>
+                      {confirmId === t.id ? (
+                        <span className="confirm">
+                          <span className="confirm__text">Remove?</span>
+                          <button className="confirm__yes" onClick={() => remove(t.id)}>
+                            Yes
+                          </button>
+                          <button className="confirm__no" onClick={() => setConfirmId(null)}>
+                            Cancel
+                          </button>
+                        </span>
+                      ) : (
+                        <button className="track__del" onClick={() => setConfirmId(t.id)}>
+                          Remove
+                        </button>
+                      )}
                     </div>
                   </div>
 

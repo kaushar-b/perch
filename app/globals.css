@@ -244,3 +244,16 @@ body {
 .dash__usage { font-size: 13px; color: var(--muted); margin: -14px 0 24px; }
 .dash__upgrade { color: var(--brand-deep); font-weight: 600; text-decoration: none; }
 .dash__upgrade:hover { text-decoration: underline; }
+
+.confirm { display: inline-flex; align-items: center; gap: 8px; }
+.confirm__text { font-size: 13px; color: var(--ink); font-weight: 600; }
+.confirm__yes {
+  background: var(--drop); color: #fff; border: none; border-radius: 7px;
+  padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.confirm__yes:hover { opacity: 0.9; }
+.confirm__no {
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  border-radius: 7px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.confirm__no:hover { background: var(--paper); }
