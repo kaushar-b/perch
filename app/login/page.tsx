@@ -52,7 +52,7 @@ export default function LoginPage() {
     <div className="wrap">
       <nav className="nav">
         <a href="/" className="brand">
-          <span className="brand__mark">Perch<span>.</span></span>
+          <span className="brand__mark">perch<span className="brand__mark-rank">Rank</span><span className="brand__mark-dot">.</span></span>
         </a>
       </nav>
 

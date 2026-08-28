@@ -16,7 +16,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Perch — Your spot in eBay search",
+  title: "perchRank — Your spot in eBay search",
   description:
     "See exactly where your eBay listing ranks in Best Match search results, and track it every day.",
 };
