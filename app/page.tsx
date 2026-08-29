@@ -1,5 +1,6 @@
 "use client";
 
+import Reviews from "./Reviews";
 import { useState } from "react";
 import PublicNav from "./PublicNav";
 import Footer from "./Footer";
@@ -199,6 +200,7 @@ export default function Home() {
         <a className="btn" href="/login">Create a free account</a>
       </section>
 
+      <Reviews />
       <Footer />
     </div>
   );
